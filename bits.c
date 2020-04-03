@@ -111,9 +111,9 @@ void unsetBit(Bits b, int position)
     int byte_pos = position / 8;
     int bit_pos = position % 8;
 
-    if (bitIsSet(b, position)) return;
+    if (!bitIsSet(b, position)) return;
     Byte mask = ~(1 << bit_pos);
-    b->bitstring[byte_pos] |= mask;
+    b->bitstring[byte_pos] &= mask;
 }
 
 // set all bits to 0
@@ -128,7 +128,7 @@ void unsetAllBits(Bits b)
         while(pos >= 0)
         {
             Byte mask = ~(1 << pos);
-            b->bitstring[byte] |= mask;
+            b->bitstring[byte] &= mask;
             pos--;
         }
     }
@@ -141,8 +141,8 @@ void andBits(Bits b1, Bits b2)
     assert(b1 != NULL && b2 != NULL);
     assert(b1->nbytes == b2->nbytes);
     //TODO
-    
-
+    for(int i = 0; i < b1->nbytes; i++)
+        b1->bitstring[i] &= b2->bitstring[i];
 }
 
 // bitwise OR ... b1 = b1 | b2
@@ -152,6 +152,8 @@ void orBits(Bits b1, Bits b2)
     assert(b1 != NULL && b2 != NULL);
     assert(b1->nbytes == b2->nbytes);
     //TODO
+    for(int i = 0; i < b1->nbytes; i++)
+        b1->bitstring[i] |= b2->bitstring[i];
 }
 
 

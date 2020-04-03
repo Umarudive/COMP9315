@@ -1,12 +1,16 @@
 # COMP9315
   
-	q1 - todo getBits(), putBits()
+	q1 - bits.c 	//todo getBits(), putBits()
 	
-	q2 - finished
+	q2 - query.c	// finished (maybe
 
-	q3 - 
+	q3 - tsig.c
+		
+	   - reln.c
 	
-	q4 - 
+	q4 - psig.c
 	
-	q5 - 
+	q5 - reln.c
+	
+	   - bsig.c
 	

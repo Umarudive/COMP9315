@@ -61,7 +61,12 @@ Bool isSubset(Bits b1, Bits b2)
     assert(b1 != NULL && b2 != NULL);
     assert(b1->nbytes == b2->nbytes);
     //TODO
-    return FALSE; // remove this
+    for(int i = 0; i<b1->nbytes;i++)
+    {
+        if ((b1->bitstring[i] & b2->bitstring[i]) != b1->bitstring[i])
+            return FALSE;
+    }
+    return TRUE;
 }
 
 // set the bit at position to 1
@@ -164,6 +169,11 @@ void orBits(Bits b1, Bits b2)
 void getBits(Page p, Offset pos, Bits b)
 {
     //TODO
+
+    int length = b->nbytes;
+    Byte *addr = addrInPage(p, pos, length);
+    for(int i = 0; i<length; i++)
+        b->bitstring[i] = *addr++;
 }
 
 // copy the bit-string array in a BitsRep
@@ -172,6 +182,11 @@ void getBits(Page p, Offset pos, Bits b)
 void putBits(Page p, Offset pos, Bits b)
 {
     //TODO
+
+    int length = b->nbytes;
+    Byte *addr = addrInPage(p, pos, length);
+    memcpy(addr, b->bitstring, length);
+
 }
 
 // show Bits on stdout

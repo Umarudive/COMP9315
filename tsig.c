@@ -10,13 +10,42 @@
 #include "hash.h"
 #include "bits.h"
 
+Bits codeword(char *attr, int m, int k)
+{
+    int hash_seed = hash_any(attr, strlen(attr));
+    Count nbits = 0;
+    Bits cw = newBits(m);
+    srandom(hash_seed);
+
+    while(nbits < k)
+    {
+        int i = random() % m;   // [0, m-1]
+        if(!bitIsSet(cw,i))
+        {
+            setBit(cw,i);
+            nbits++;
+        }
+    }
+    return cw;
+}
+
 // make a tuple signature
 
 Bits makeTupleSig(Reln r, Tuple t)
 {
 	assert(r != NULL && t != NULL);
 	//TODO
-	return NULL;
+
+    Bits tsig = newBits(tsigBits(r));
+    char **vals = tupleVals(r, t);
+
+    for(int i = 0; i < nAttrs(r); i++)
+    {
+        if (vals[i][0] == '?') continue;
+        Bits cw = codeword(vals[i], tsigBits(r),codeBits(r));
+        orBits(tsig,cw);
+    }
+    return tsig;
 }
 
 // find "matching" pages using tuple signatures
@@ -26,9 +55,29 @@ void findPagesUsingTupSigs(Query q)
 	assert(q != NULL);
 	//TODO
 
-	setAllBits(q->pages); // remove this
+    Reln r = q->rel;
+    Tuple t = q->qstring;
+    Bits qsig = makeTupleSig(r,t);
+    unsetAllBits(q->pages);
+    File f = tsigFile(r);
+    Bits tsig = newBits(tsigBits(r));
+
+    int pid = 0;
+    for(int i = 0; i < nTsigPages(r); i++)
+    {
+        q->nsigpages++;
+        Page p = getPage(f, i);
+        for(int pos = 0; pos < pageNitems(p); pos++)
+        {
+            pid++;
+            getBits(p, pos, tsig);
+            if(isSubset(qsig, tsig))
+                setBit(q->pages, pid/maxTupsPP(r));
+            q->nsigs++;
+        }
+    }
 
 	// The printf below is primarily for debugging
 	// Remove it before submitting this function
-	printf("Matched Pages:"); showBits(q->pages); putchar('\n');
+//	printf("Matched Pages:"); showBits(q->pages); putchar('\n');
 }

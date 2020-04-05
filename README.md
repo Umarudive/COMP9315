@@ -1,19 +1,18 @@
 # COMP9315
   
-	q1 - bits.c 	// finished (maybe
+	q1 - bits.c 	// finished
 	
-	q2 - query.c	// finished (maybe
+	q2 - query.c	// finished
 
-	q3 - tsig.c	// finished (maybe
+	q3 - tsig.c	// finished
 		
 	   - reln.c	// finished tsig
-	   		// TODO addToRelation() for psig and bsig and newRelation()
 	
-	q4 - psig.c	// in progress...
+	q4 - psig.c	// finished
 	
-	   - reln.c	// in progress...
+	   - reln.c	// finished psig
 	
-	q5 - reln.c
+	q5 - reln.c	// in progress
 	
-	   - bsig.c
+	   - bsig.c	// in progress
 	

@@ -11,7 +11,12 @@
 #include "tuple.h"
 #include "tsig.h"
 #include "bits.h"
+
 #include "hash.h"
+#include "psig.h"
+
+
+
 // open a file with a specified suffix
 // - always open for both reading and writing
 
@@ -59,6 +64,7 @@ Status newRelation(char *name, Count nattrs, float pF,
 	// Create a file containing "pm" all-zeroes bit-strings,
     // each of which has length "bm" bits
 	//TODO
+
 	closeRelation(r);
 	return 0;
 }
@@ -118,7 +124,7 @@ PageID addToRelation(Reln r, Tuple t)
 	assert(r != NULL && t != NULL && strlen(t) == tupSize(r));
 	Page p;  PageID pid;
 	RelnParams *rp = &(r->params);
-	
+    Bool addPsig = FALSE;
 	// add tuple to last page
 	pid = rp->npages-1;
 	p = getPage(r->dataf, pid);
@@ -129,6 +135,7 @@ PageID addToRelation(Reln r, Tuple t)
 		pid++;
 		free(p);
 		p = newPage();
+        addPsig = TRUE;
 		if (p == NULL) return NO_PAGE;
 	}
 	addTupleToPage(r, p, t);
@@ -139,11 +146,11 @@ PageID addToRelation(Reln r, Tuple t)
 
 	//TODO
 
-	// just imitate the operations above
     PageID tpid = r->params.tsigNpages-1;
     Page tp = getPage(r->tsigf, tpid);
 
-    if (pageNitems(tp) == r->params.tsigPP) {
+    if (pageNitems(tp) == r->params.tsigPP)
+    {
         addPage(r->tsigf);
         r->params.tsigNpages++;
         tpid++;
@@ -153,20 +160,65 @@ PageID addToRelation(Reln r, Tuple t)
     }
     // add tsig to signature page
     Bits tsig = makeTupleSig(r,t);
-    Count pos = pageNitems(p);
+    Count pos = pageNitems(tp);
     putBits(tp, pos, tsig);
-    r->params.ntsigs++;
-    putPage(r->tsigf, tpid, tp);
     addOneItem(tp);
+    rp->ntsigs++;
+    putPage(r->tsigf, tpid, tp);
+
 
 	// compute page signature and add to psigf
 
 	//TODO
+//    new Tuple is inserted into page PID
+//    Psig = makePageSig(Tuple)
+//    PPsig = fetch page signature for data page PID from psigFile
+//    merge Psig and PPsig giving a new PPsig
+//    update page signature for data page PID in psigFile
+
+    PageID Psigid = r->params.psigNpages-1;
+    Bits Psig = makePageSig(r, t);              // query signature
+    Page Psigp = getPage(r->psigf, Psigid);     // signature page
+
+    // when inserting the tuple
+    //      -> check whether the page is full
+    // that is (if full-> add a new page-> new psig)
+
+    if(nPsigPages(r) < pid/r->params.psigPP + 1)
+    {
+        addPage(r->psigf);
+        r->params.psigNpages++;
+        Psigid++;
+        free(Psigp);
+        Psigp = newPage();
+        if (Psigp == NULL) return NO_PAGE;
+    }
+    if(addPsig||(pid == 0 && pageNitems(Psigp)==0)) addOneItem(Psigp);
+
+    Bits PPsig = newBits(psigBits(r));
+    int ppos = pid % r->params.psigPP;
+    r->params.npsigs = pid+1;
+
+    getBits(Psigp,  ppos, PPsig);
+    orBits(Psig, PPsig);
+    putBits(Psigp,  ppos, Psig);
+    putPage(r->psigf, Psigid, Psigp);
+
+
 
 
 	// use page signature to update bit-slices
 
 	//TODO
+//    PID = data page where new Tuple inserted
+//    Psig = makePageSig(Tuple)
+//    for each i in  0..pm-1 {
+//        if (Psig bit[i] is 1) {
+//            Slice = get i'th bit slice from bsigFile
+//            set the PID'th bit in Slice
+//            write updated Slice back to bsigFile
+//        }
+//    }
 
 	return nPages(r)-1;
 }

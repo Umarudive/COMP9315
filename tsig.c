@@ -35,6 +35,11 @@ Bits makeTupleSig(Reln r, Tuple t)
 {
 	assert(r != NULL && t != NULL);
 	//TODO
+//    Tsig = AllZeroBits
+//    for each attribute A in tuple T {
+//            CW = codeword for A
+//            Tsig = Tsig OR CW
+//    }
 
     Bits tsig = newBits(tsigBits(r));
     char **vals = tupleVals(r, t);
@@ -54,15 +59,25 @@ void findPagesUsingTupSigs(Query q)
 {
 	assert(q != NULL);
 	//TODO
+//    QuerySig = makeTupleSig(Query)
+//    Pages = AllZeroBits
+//    foreach Tsig in tsigFile {
+//            if (Tsig matches QuerySig) {
+//                PID = data page for tuple corresponding to Tsig
+//                include PID in Pages
+//            }
+//    }
 
     Reln r = q->rel;
     Tuple t = q->qstring;
-    Bits qsig = makeTupleSig(r,t);
+
+    Bits query_sig = makeTupleSig(r,t);
     unsetAllBits(q->pages);
     File f = tsigFile(r);
     Bits tsig = newBits(tsigBits(r));
 
     int pid = 0;
+
     for(int i = 0; i < nTsigPages(r); i++)
     {
         q->nsigpages++;
@@ -71,7 +86,7 @@ void findPagesUsingTupSigs(Query q)
         {
             pid++;
             getBits(p, pos, tsig);
-            if(isSubset(qsig, tsig))
+            if(isSubset(query_sig, tsig))
                 setBit(q->pages, pid/maxTupsPP(r));
             q->nsigs++;
         }

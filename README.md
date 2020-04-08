@@ -12,7 +12,7 @@
 	
 	   - reln.c	// finished psig
 	
-	q5 - reln.c	// in progress
+	q5 - reln.c	// finished
 	
-	   - bsig.c	// in progress
+	   - bsig.c	// finished bsig
 	

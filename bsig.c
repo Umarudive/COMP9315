@@ -42,9 +42,7 @@ void findPagesUsingBitSlices(Query q)
             Page p = getPage(r->bsigf, pid);
             Bits bsig = newBits(bsigBits(r));
             getBits(p,pos,bsig);
-            for(int j = 0; j < nPages(r);j++)
-                if(!bitIsSet(bsig,j))
-                    unsetBit(q->pages, j);
+            andBits(q->pages, bsig);
         }
     }
     q->nsigpages = visited;

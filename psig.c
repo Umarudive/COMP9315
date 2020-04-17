@@ -31,7 +31,6 @@ Bits makePageSig(Reln r, Tuple t)
 {
 	assert(r != NULL && t != NULL);
 	//TODO
-
     Bits psig = newBits(psigBits(r));
     char **vals = tupleVals(r, t);
 
@@ -40,7 +39,9 @@ Bits makePageSig(Reln r, Tuple t)
         if (vals[i][0] == '?') continue;
         Bits cw = pcodeword(vals[i], psigBits(r),codeBits(r));
         orBits(psig,cw);
+        freeBits(cw);
     }
+    freeVals(vals, nAttrs(r));
     return psig;
 }
 
@@ -48,15 +49,6 @@ void findPagesUsingPageSigs(Query q)
 {
 	assert(q != NULL);
 	//TODO
-//    QuerySig = makePageSig(Query)
-//    Pages = AllZeroBits
-//    foreach Psig in psigFile {
-//            if (Psig matches QuerySig) {
-//                PID = data page corresponding to Psig
-//                include PID in Pages
-//            }
-//    }
-
     Reln r = q->rel;
     Tuple t = q->qstring;
     Bits query_sig = makePageSig(r,t);

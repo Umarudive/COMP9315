@@ -60,15 +60,14 @@ void scanAndDisplayMatchingTuples(Query q)
     int nP = nPages(q->rel);
     for (int pid = 0; pid < nP; pid++)
     {
-        if(!bitIsSet(q->pages, pid))    // if pid id not in examine list
-            continue;
+        if(!bitIsSet(q->pages, pid)) continue;
 
-        Bool flag = FALSE;              // match flag
-        q->ntuppages++;                 // pages read
-        Tuple tq = q->qstring;          // query string to tuple
+        Bool flag = FALSE;
+        q->ntuppages++;                         // pages read
+        Tuple tq = q->qstring;                  // query string to tuple
         Reln r = q->rel;
         Page p = getPage(dataFile(r), pid);
-        Count maxP = nTuples(r);              // maximum tuple
+        Count maxP = nTuples(r);                // maximum tuple
 
         for(q->curpage = 0; q->curpage < maxTupsPP(r); q->curpage++)
         {
@@ -81,8 +80,8 @@ void scanAndDisplayMatchingTuples(Query q)
             }
         }
         if(!flag) q->nfalse++;
-        q->ntuples = q->curtup;
     }
+    q->ntuples = q->curtup;
 }
 
 // print statistics on query

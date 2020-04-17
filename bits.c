@@ -35,7 +35,6 @@ Bits newBits(int nbits)
 void freeBits(Bits b)
 {
     //TODO
-    free(b->bitstring);
     free(b);
 }
 
@@ -169,7 +168,6 @@ void orBits(Bits b1, Bits b2)
 void getBits(Page p, Offset pos, Bits b)
 {
     //TODO
-
     int length = b->nbytes;
     Byte *addr = addrInPage(p, pos, length);
     for(int i = 0; i<length; i++)
@@ -182,7 +180,6 @@ void getBits(Page p, Offset pos, Bits b)
 void putBits(Page p, Offset pos, Bits b)
 {
     //TODO
-
     int length = b->nbytes;
     Byte *addr = addrInPage(p, pos, length);
     memcpy(addr, b->bitstring, length);

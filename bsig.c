@@ -13,15 +13,6 @@ void findPagesUsingBitSlices(Query q)
 	assert(q != NULL);
 
 	//TODO
-//    Qsig = makePageSig(Query)
-//    Pages = AllOneBits
-//    for each i in 0..pm-1 {
-//        if (Psig bit[i] is 1) {
-//            Slice = get i'th bit slice from bsigFile
-//            zero bits in Pages which are zero in Slice
-//        }
-//    }
-
     Reln r = q->rel;
     Tuple t = q->qstring;
 
@@ -36,15 +27,14 @@ void findPagesUsingBitSlices(Query q)
         {
             q->nsigs++;
             PageID pid = i / maxBsigsPP(r);
-            if(former!= pid) visited++; former = pid;
+            if(former!= pid) {visited++; former = pid;}
 
             int pos = i % maxBsigsPP(r);
             Page p = getPage(r->bsigf, pid);
             Bits bsig = newBits(bsigBits(r));
             getBits(p,pos,bsig);
-            for(int j = 0; j < nPages(r);j++)
-                if(!bitIsSet(bsig,j))
-                    unsetBit(q->pages, j);
+            andBits(q->pages, bsig);
+            freeBits(bsig);
         }
     }
     q->nsigpages = visited;

@@ -16,7 +16,6 @@ Bits codeword(char *attr, int m, int k)
     Count nbits = 0;
     Bits cw = newBits(m);
     srandom(hash_seed);
-
     while(nbits < k)
     {
         int i = random() % m;   // [0, m-1]
@@ -35,11 +34,6 @@ Bits makeTupleSig(Reln r, Tuple t)
 {
 	assert(r != NULL && t != NULL);
 	//TODO
-//    Tsig = AllZeroBits
-//    for each attribute A in tuple T {
-//            CW = codeword for A
-//            Tsig = Tsig OR CW
-//    }
 
     Bits tsig = newBits(tsigBits(r));
     char **vals = tupleVals(r, t);
@@ -49,7 +43,9 @@ Bits makeTupleSig(Reln r, Tuple t)
         if (vals[i][0] == '?') continue;
         Bits cw = codeword(vals[i], tsigBits(r),codeBits(r));
         orBits(tsig,cw);
+        freeBits(cw);
     }
+    freeVals(vals, nAttrs(r));
     return tsig;
 }
 
@@ -59,14 +55,6 @@ void findPagesUsingTupSigs(Query q)
 {
 	assert(q != NULL);
 	//TODO
-//    QuerySig = makeTupleSig(Query)
-//    Pages = AllZeroBits
-//    foreach Tsig in tsigFile {
-//            if (Tsig matches QuerySig) {
-//                PID = data page for tuple corresponding to Tsig
-//                include PID in Pages
-//            }
-//    }
 
     Reln r = q->rel;
     Tuple t = q->qstring;
@@ -77,7 +65,6 @@ void findPagesUsingTupSigs(Query q)
     Bits tsig = newBits(tsigBits(r));
 
     int pid = 0;
-
     for(int i = 0; i < nTsigPages(r); i++)
     {
         q->nsigpages++;
@@ -91,8 +78,4 @@ void findPagesUsingTupSigs(Query q)
             q->nsigs++;
         }
     }
-
-	// The printf below is primarily for debugging
-	// Remove it before submitting this function
-//	printf("Matched Pages:"); showBits(q->pages); putchar('\n');
 }

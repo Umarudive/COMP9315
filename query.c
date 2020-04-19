@@ -68,16 +68,26 @@ void scanAndDisplayMatchingTuples(Query q)
         Reln r = q->rel;
         Page p = getPage(dataFile(r), pid);
         Count maxP = nTuples(r);                // maximum tuple
-
-        for(q->curpage = 0; q->curpage < maxTupsPP(r); q->curpage++)
+        
+        for(int tid = 0; tid < maxTupsPP(r); tid++)
         {
-            if(++q->curtup == maxP) break;
-            Tuple temp = getTupleFromPage(r, p, q->curpage);
-            if(tupleMatch(r, temp, tq))
+            // referenced from Tuple->getTupleFromPage
+            int size = tupSize(r);
+            Byte *addr = addrInPage(p, tid, size);
+            Tuple t = malloc(size+1);
+            memcpy(t, addr, size);
+            t[size] = '\0';
+
+             if (*t == '\0') break;
+            
+            if(tupleMatch(r, t, tq))
             {
-                showTuple(r, temp);
+                showTuple(r, t);
                 flag = TRUE;
             }
+            
+            free(t);
+            if(q->curtup++ == maxP) break;
         }
         if(!flag) q->nfalse++;
     }

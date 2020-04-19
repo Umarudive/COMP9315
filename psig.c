@@ -53,7 +53,7 @@ void findPagesUsingPageSigs(Query q)
     Tuple t = q->qstring;
     Bits query_sig = makePageSig(r,t);
     unsetAllBits(q->pages);
-    Bits qsig = newBits(psigBits(r));
+    Bits psig = newBits(psigBits(r));
     int pid = -1;
     for(int i = 0; i < nPsigPages(r); i++)
     {
@@ -62,12 +62,13 @@ void findPagesUsingPageSigs(Query q)
         for(int pos = 0; pos < pageNitems(p); pos++)
         {
             ++pid;
-            getBits(p, pos, qsig);
-            if(isSubset(query_sig, qsig))
+            getBits(p, pos, psig);
+            if(isSubset(query_sig, psig))
                 setBit(q->pages, pid);
             q->nsigs++;
         }
     }
+    freeBits(psig);
 }
 
 

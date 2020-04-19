@@ -78,4 +78,5 @@ void findPagesUsingTupSigs(Query q)
             q->nsigs++;
         }
     }
+    freeBits(tsig);
 }

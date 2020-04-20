@@ -71,21 +71,15 @@ void scanAndDisplayMatchingTuples(Query q)
         
         for(int tid = 0; tid < maxTupsPP(r); tid++)
         {
-            // referenced from Tuple->getTupleFromPage
-            int size = tupSize(r);
-            Byte *addr = addrInPage(p, tid, size);
-            Tuple t = malloc(size+1);
-            memcpy(t, addr, size);
-            t[size] = '\0';
 
-             if (*t == '\0') break;
-            
+            Tuple t = getTupleFromPage(r,p,tid);
+            if (strlen(t)==0) break;
+
             if(tupleMatch(r, t, tq))
             {
                 showTuple(r, t);
                 flag = TRUE;
             }
-            
             free(t);
             if(q->curtup++ == maxP) break;
         }
